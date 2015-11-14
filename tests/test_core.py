@@ -3,6 +3,7 @@ from mock import patch
 
 import unittest
 
+
 class TestCore(unittest.TestCase):
 
     def setUp(self):
@@ -12,18 +13,31 @@ class TestCore(unittest.TestCase):
         pass
 
     def test_calculate_diff(self):
-        diff = core._calculate_diff(5, 2)
-        self.assertEqual(diff, 3)
-        diff = core._calculate_diff(5.3, 2.1)
-        self.assertEqual(diff, 5.3 - 2.1)
-        diff = core._calculate_diff('a', 2.1)
+        diff = core._calculate_diff('Score', 5, 2)
+        self.assertEqual(diff['diff'], 3)
+        diff = core._calculate_diff('Score', 5.3, 2.1)
+        self.assertEqual(diff['diff'], 5.3 - 2.1)
+        diff = core._calculate_diff('Score', 2.1, 5.3)
+        self.assertEqual(diff['diff'], 5.3 - 2.1)
+        diff = core._calculate_diff('Score', 'a', 2.1)
         self.assertEqual(diff, 'a')
-        diff = core._calculate_diff('a', 'b')
+        diff = core._calculate_diff('Score', 'a', 'b')
         self.assertEqual(diff, 'a')
 
+        diff = core._calculate_diff('Score', 5, 2)
+        self.assertEqual(diff['status'], 'OK')
+        diff = core._calculate_diff('numberCssResources', 5, 2)
+        self.assertEqual(diff['status'], 'BAD')
+
     def test_create_diff(self):
+        _OLD_POSITIVES = core.POSITIVES
+        _OLD_NEGATIVES = core.NEGATIVES
+
+        core.POSITIVES = ['result']
+        core.NEGATIVES = ['second']
+
         new = {
-            'first': 5,
+            'result': 5,
             'complex': {
                 'first': 'http://',
                 'second': 10
@@ -31,7 +45,7 @@ class TestCore(unittest.TestCase):
         }
 
         old = {
-            'first': 2,
+            'result': 2,
             'complex': {
                 'first': 'http://',
                 'second': 1
@@ -39,15 +53,24 @@ class TestCore(unittest.TestCase):
         }
 
         diff = {
-            'first': 3,
+            'result': {
+                'diff': 3,
+                'status': 'OK'
+            },
             'complex': {
                 'first': 'http://',
-                'second': 9
+                'second': {
+                    'diff': 9,
+                    'status': 'BAD'
+                }
             }
         }
 
         diff_result = core._create_diff(new, old)
         self.assertEqual(diff_result, diff)
+
+        core.POSITIVES = _OLD_POSITIVES
+        core.NEGATIVES = _OLD_NEGATIVES
 
     @patch('glancespeed.core._create_diff')
     def test_diff_results(self, mock_create_diff):

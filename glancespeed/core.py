@@ -1,5 +1,7 @@
 import copy, json, six, subprocess
 
+POSITIVES = ["Score"]
+NEGATIVES = ["numberCssResources"]
 
 def _get_result_json(host, strategy):
     cmd = 'psi {0} --strategy={1} --format=json --threshold=1'.format(host, strategy)
@@ -20,11 +22,15 @@ def _get_results(host):
     return result_json
 
 
-def _calculate_diff(new_value, old_value):
+def _calculate_diff(key, new_value, old_value):
+    diff = new_value
     if isinstance(new_value, (int, float)) and isinstance(old_value, (int, float)):
-        return new_value - old_value
-    else:
-        return new_value
+        _new_value, _old_value = (new_value, old_value) if new_value > old_value else (old_value, new_value)
+        diff = {
+            'diff': _new_value - _old_value,
+            'status': 'OK' if key in POSITIVES and new_value >= old_value else 'BAD'
+        }
+    return diff
 
 
 def _create_diff(new_result, old_result, diff_result={}):
@@ -34,7 +40,7 @@ def _create_diff(new_result, old_result, diff_result={}):
         if isinstance(v, dict):
             diff_result[k] = _create_diff(new_result[k], old_result[k], diff_result[k])
         else:
-            diff_result[k] = _calculate_diff(new_result[k], old_result[k])
+            diff_result[k] = _calculate_diff(k, new_result[k], old_result[k])
     return diff_result
 
 
