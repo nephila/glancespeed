@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 import sys
 
 extra_kwargs = {}
-extra_kwargs['install_requires'] = []
+extra_kwargs['install_requires'] = ['six==1.10.0']
 if sys.version_info < (2, 7):
     extra_kwargs['install_requires'].append('argparse')
 

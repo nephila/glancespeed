@@ -1,4 +1,4 @@
-import copy, json, subprocess
+import copy, json, six, subprocess
 
 
 def _get_result_json(host, strategy):
@@ -31,7 +31,7 @@ def _calculate_diff(new_value, old_value):
 def _creatediff(new_result, old_result, diff_result={}):
     if not diff_result:
         diff_result = copy.deepcopy(new_result)
-    for k, v in diff_result.items():
+    for k, v in six.iteritems(diff_result):
         if isinstance(v, dict):
             diff_result[k] = _creatediff(new_result[k], old_result[k], diff_result[k])
         else:
