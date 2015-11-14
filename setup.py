@@ -12,7 +12,7 @@ if sys.version_info < (2, 7):
 setup(name="glancespeed",
     packages=['glancespeed'],
     version="0.0.1",
-    description="Glance speed",
+    description="Nephila's internal tool to show Google PageSpeed Insights reports differences",
     license="MIT",
     author="Andrea Stagi",
     author_email="stagi.andrea@gmail.com",
