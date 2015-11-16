@@ -1,4 +1,4 @@
-import copy, json, six, subprocess
+import copy, json, re, six, subprocess
 
 POSITIVES = ["Score"]
 NEGATIVES = ["numberCssResources"]
@@ -22,8 +22,32 @@ def _get_results(host):
     return result_json
 
 
+def _diff_dimensions(key, new_value, old_value):
+    regexp = '([0-9]+\.[0-9]+)\sKB'
+    match = re.search(regexp, new_value)
+    new_value = float(match.group(1))
+    match = re.search(regexp, old_value)
+    old_value = float(match.group(1))
+    _new_value, _old_value = (new_value, old_value) if new_value > old_value else (old_value, new_value)
+    diff = {
+        'sign': '-' if new_value < old_value else '+',
+        'diff': '{0} KB'.format(_new_value - _old_value),
+        'status': 'OK' if key in POSITIVES and new_value >= old_value else 'BAD'
+    }
+    return diff
+
+def _is_dimension(value):
+    if not isinstance(value, basestring):
+        return False
+    match = re.search('([0-9]+\.[0-9]+)\sKB', value)
+    if match:
+        return True
+    return False
+
 def _calculate_diff(key, new_value, old_value):
     diff = new_value
+    if _is_dimension(new_value) and _is_dimension(old_value):
+        diff = _diff_dimensions(key, new_value, old_value)
     if isinstance(new_value, (int, float)) and isinstance(old_value, (int, float)):
         _new_value, _old_value = (new_value, old_value) if new_value > old_value else (old_value, new_value)
         diff = {

@@ -24,6 +24,9 @@ class TestCore(unittest.TestCase):
         diff = core._calculate_diff('Score', 'a', 'b')
         self.assertEqual(diff, 'a')
 
+        diff = core._calculate_diff('Score', '24.5 KB', '34.6 KB')
+        self.assertEqual(diff['diff'], '10.1 KB')
+
         diff = core._calculate_diff('Score', 5, 2)
         self.assertEqual(diff['status'], 'OK')
         diff = core._calculate_diff('numberCssResources', 5, 2)
