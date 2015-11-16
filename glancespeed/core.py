@@ -76,6 +76,8 @@ def _check_status(key, new_value, old_value):
         return 'OK'
     if key in POSITIVES and new_value > old_value:
         return 'OK'
+    elif key in NEGATIVES and new_value < old_value:
+        return 'OK'
     else:
         return 'BAD'
 
@@ -129,7 +131,7 @@ def _glance_speed_diff(host):
 
 def _print_score(diff):
     colored_output = colored(
-        '{0} ({1}{2})'.format(
+        '{0}/100 ({1}{2})'.format(
             diff['new'], diff['sign'],diff['diff']
         ), 'green' if diff['status'] == 'OK' else 'red',
         attrs=['bold'])

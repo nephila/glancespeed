@@ -43,13 +43,14 @@ class TestCore(unittest.TestCase):
         _OLD_NEGATIVES = core.NEGATIVES
 
         core.POSITIVES = ['result']
-        core.NEGATIVES = ['second']
+        core.NEGATIVES = ['second', 'third']
 
         new = {
             'result': 5,
             'complex': {
                 'first': 'http://',
-                'second': 10
+                'second': 10,
+                'third': 1
             }
         }
 
@@ -57,7 +58,8 @@ class TestCore(unittest.TestCase):
             'result': 2,
             'complex': {
                 'first': 'http://',
-                'second': 1
+                'second': 1,
+                'third': 10
             }
         }
 
@@ -75,6 +77,12 @@ class TestCore(unittest.TestCase):
                     'new': 10,
                     'status': 'BAD',
                     'sign': '+'
+                },
+                'third': {
+                    'diff': 9,
+                    'new': 1,
+                    'status': 'OK',
+                    'sign': '-'
                 }
             }
         }
