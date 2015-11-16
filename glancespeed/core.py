@@ -27,6 +27,7 @@ def _calculate_diff(key, new_value, old_value):
     if isinstance(new_value, (int, float)) and isinstance(old_value, (int, float)):
         _new_value, _old_value = (new_value, old_value) if new_value > old_value else (old_value, new_value)
         diff = {
+            'sign': '-' if new_value < old_value else '+',
             'diff': _new_value - _old_value,
             'status': 'OK' if key in POSITIVES and new_value >= old_value else 'BAD'
         }

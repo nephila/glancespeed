@@ -29,6 +29,11 @@ class TestCore(unittest.TestCase):
         diff = core._calculate_diff('numberCssResources', 5, 2)
         self.assertEqual(diff['status'], 'BAD')
 
+        diff = core._calculate_diff('Score', 5, 2)
+        self.assertEqual(diff['sign'], '+')
+        diff = core._calculate_diff('Score', 1, 2)
+        self.assertEqual(diff['sign'], '-')
+
     def test_create_diff(self):
         _OLD_POSITIVES = core.POSITIVES
         _OLD_NEGATIVES = core.NEGATIVES
@@ -55,13 +60,15 @@ class TestCore(unittest.TestCase):
         diff = {
             'result': {
                 'diff': 3,
-                'status': 'OK'
+                'status': 'OK',
+                'sign': '+'
             },
             'complex': {
                 'first': 'http://',
                 'second': {
                     'diff': 9,
-                    'status': 'BAD'
+                    'status': 'BAD',
+                    'sign': '+'
                 }
             }
         }
