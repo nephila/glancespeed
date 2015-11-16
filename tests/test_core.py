@@ -24,8 +24,9 @@ class TestCore(unittest.TestCase):
         diff = core._calculate_diff('Score', 'a', 'b')
         self.assertEqual(diff, 'a')
 
-        diff = core._calculate_diff('Score', '24.5 KB', '34.6 KB')
-        self.assertEqual(diff['diff'], '10.1 KB')
+        diff = core._calculate_diff('Score', '24.5 kB', '34.6 kB')
+        self.assertEqual(diff['new'], '24.5 kB')
+        self.assertEqual(diff['diff'], '10.1 kB')
 
         diff = core._calculate_diff('Score', 5, 2)
         self.assertEqual(diff['status'], 'OK')
@@ -63,6 +64,7 @@ class TestCore(unittest.TestCase):
         diff = {
             'result': {
                 'diff': 3,
+                'new': 5,
                 'status': 'OK',
                 'sign': '+'
             },
@@ -70,6 +72,7 @@ class TestCore(unittest.TestCase):
                 'first': 'http://',
                 'second': {
                     'diff': 9,
+                    'new': 10,
                     'status': 'BAD',
                     'sign': '+'
                 }
