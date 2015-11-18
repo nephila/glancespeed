@@ -113,8 +113,15 @@ def _diff_results(new_result, old_result):
     return _create_diff(new_result, old_result)
 
 
+def _normalize_host_name(host):
+    return host.strip('/').replace('/', '-')
+
+
 def _glance_speed_diff(host):
-    filename= '.glancespeed'
+    directory = '.glancespeed'
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    filename= os.path.join(directory, _normalize_host_name(host))
     new_result = _get_results(host)
     old_result = None
     try:
