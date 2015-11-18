@@ -28,6 +28,8 @@ STATISTICS = {
     'totalRequestBytes': 'Total size',
 }
 
+DIMENSION_REGEXP = '([0-9]+(\.[0-9]+)?)\s([k|M]?B)'
+
 def _get_result_json(host, strategy):
     cmd = 'psi {0} --strategy={1} --format=json --threshold=1'.format(host, strategy)
     result = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
@@ -55,12 +57,11 @@ def _diff_dimensions(key, new_value, old_value):
         'MB': 1000 * 1000
     }
 
-    regexp = '([0-9]+(\.[0-9]+)?)\s(k?B)'
-    match = re.search(regexp, new_value)
+    match = re.search(DIMENSION_REGEXP, new_value)
     new_value = float(match.group(1))
     new_um = match.group(3)
     _trans_new_value = new_value * um_mul[new_um]
-    match = re.search(regexp, old_value)
+    match = re.search(DIMENSION_REGEXP, old_value)
     old_value = float(match.group(1))
     old_um = match.group(3)
     _trans_old_value = old_value * um_mul[old_um]
@@ -84,7 +85,7 @@ def _diff_dimensions(key, new_value, old_value):
 def _is_dimension(value):
     if not isinstance(value, basestring):
         return False
-    match = re.search('([0-9]+(\.[0-9]+)?)\s(k?B)', value)
+    match = re.search(DIMENSION_REGEXP, value)
     if match:
         return True
     return False
