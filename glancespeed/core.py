@@ -30,13 +30,23 @@ STATISTICS = {
 
 DIMENSION_REGEXP = '([0-9]+(\.[0-9]+)?)\s([k|M]?B)'
 
+
+class GlanceSpeedException(Exception):
+    pass
+
 def _get_result_json(host, strategy):
+    log_file = open('.glancespeed/logs', 'w')
     cmd = 'psi {0} --strategy={1} --format=json --threshold=1'.format(host, strategy)
-    result = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    result = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=log_file)
     result_json = ''
     for line in result.stdout:
         result_json += line
-    return json.loads(result_json)
+    try:
+        return json.loads(result_json)
+    except ValueError:
+        raise GlanceSpeedException(result_json)
+    finally:
+        log_file.close()
 
 
 def _get_results(host):
@@ -185,7 +195,12 @@ def _print_strategy(strategy, diff):
 
 
 def glancespeed(host):
-    diff = _glance_speed_diff(host)
+    try:
+        diff = _glance_speed_diff(host)
+    except GlanceSpeedException as ex:
+        print (colored('Error executing psi:', 'red', attrs=['bold']))
+        print (open('.glancespeed/logs', 'r').read())
+        return
     print (colored('\nMobile', 'white', attrs=['bold']), end=' ')
     _print_strategy('mobile', diff)
     print (colored('\nDesktop', 'white', attrs=['bold']), end=' ')
