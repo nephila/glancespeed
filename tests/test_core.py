@@ -28,6 +28,14 @@ class TestCore(unittest.TestCase):
         self.assertEqual(diff['new'], '24.5 kB')
         self.assertEqual(diff['diff'], '10.1 kB')
 
+        diff = core._calculate_diff('Score', '24.5 kB', '500 B')
+        self.assertEqual(diff['new'], '24.5 kB')
+        self.assertEqual(diff['diff'], '24.0 kB')
+
+        diff = core._calculate_diff('Score', '500 B', '24.5 kB')
+        self.assertEqual(diff['new'], '500.0 B')
+        self.assertEqual(diff['diff'], '24.0 kB')
+
         diff = core._calculate_diff('Score', 5, 2)
         self.assertEqual(diff['status'], 'OK')
         diff = core._calculate_diff('numberCssResources', 5, 2)
@@ -114,3 +122,16 @@ class TestCore(unittest.TestCase):
         }
         results = core._get_results('http://fakehost')
         self.assertEqual(results, expected_result)
+
+    def test_normalize_host_name(self):
+        host = 'http://nephila.it'
+        self.assertEqual(
+            core._normalize_host_name(host),
+            'http:--nephila.it'
+        )
+
+        host = 'http://nephila.it/'
+        self.assertEqual(
+            core._normalize_host_name(host),
+            'http:--nephila.it'
+        )

@@ -1,11 +1,12 @@
 from __future__ import print_function
 
-import copy, json, re, six, subprocess
+import copy, json, os, re, six, subprocess
 
 from termcolor import colored
 
 
 POSITIVES = ['Score']
+
 NEGATIVES = [
     'cssResponseBytes', 'htmlResponseBytes', 'imageResponseBytes',
     'javascriptResponseBytes', 'numberCssResources', 'numberHosts',
@@ -47,16 +48,34 @@ def _get_results(host):
 
 
 def _diff_dimensions(key, new_value, old_value):
-    regexp = '([0-9]+(\.[0-9]+)?)\skB'
+
+    um_mul = {
+        'B': 1,
+        'kB': 1000,
+        'MB': 1000 * 1000
+    }
+
+    regexp = '([0-9]+(\.[0-9]+)?)\s(k?B)'
     match = re.search(regexp, new_value)
     new_value = float(match.group(1))
+    new_um = match.group(3)
+    _trans_new_value = new_value * um_mul[new_um]
     match = re.search(regexp, old_value)
     old_value = float(match.group(1))
-    _new_value, _old_value = (new_value, old_value) if new_value > old_value else (old_value, new_value)
+    old_um = match.group(3)
+    _trans_old_value = old_value * um_mul[old_um]
+    _new_value, _old_value = (_trans_new_value, _trans_old_value) if _trans_new_value > _trans_old_value else (_trans_old_value, _trans_new_value)
+
+    final_value = _new_value - _old_value
+    final_um = new_um
+    if new_um != old_um:
+        final_um = new_um if um_mul[new_um] > um_mul[old_um] else old_um
+    final_value = final_value / um_mul[final_um]
+
     diff = {
-        'new': '{0} kB'.format(new_value),
-        'sign': '-' if new_value < old_value else '+',
-        'diff': '{0} kB'.format(_new_value - _old_value),
+        'new': '{0} {1}'.format(new_value, new_um),
+        'sign': '-' if _trans_new_value < _trans_old_value else '+',
+        'diff': '{0} {1}'.format(final_value, final_um),
         'status': _check_status(key, new_value, old_value)
     }
     return diff
@@ -65,7 +84,7 @@ def _diff_dimensions(key, new_value, old_value):
 def _is_dimension(value):
     if not isinstance(value, basestring):
         return False
-    match = re.search('([0-9]+(\.[0-9]+)?)\skB', value)
+    match = re.search('([0-9]+(\.[0-9]+)?)\s(k?B)', value)
     if match:
         return True
     return False
@@ -160,7 +179,8 @@ def _print_strategy(strategy, diff):
     statistics = diff[strategy]['statistics']
     _print_score(overview['Score'])
     for k, v in six.iteritems(STATISTICS):
-        _print_diff(statistics[k], v)
+        if k in statistics:
+            _print_diff(statistics[k], v)
 
 
 def glancespeed(host):
