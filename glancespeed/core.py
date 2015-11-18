@@ -83,7 +83,7 @@ def _diff_dimensions(key, new_value, old_value):
 
 
 def _is_dimension(value):
-    if not isinstance(value, basestring):
+    if not isinstance(value, six.string_types):
         return False
     match = re.search(DIMENSION_REGEXP, value)
     if match:
