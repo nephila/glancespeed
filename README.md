@@ -2,4 +2,10 @@
 
 Nephila's internal tool to show Google PageSpeed Insights reports differences
 
-Note: this is a WIP project ;)
+## Install
+
+    $ pip install glancespeed
+
+## Usage
+
+    $ glancespeed http://nephila.it
